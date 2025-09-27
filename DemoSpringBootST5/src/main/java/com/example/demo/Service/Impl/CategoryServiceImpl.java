@@ -1,40 +1,106 @@
 package com.example.demo.Service.Impl;
 
-import com.example.demo.entity.Category;
-import com.example.demo.Repository.CategoryRepository;
-import com.example.demo.Service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import com.example.demo.Repository.CategoryRepository;
+import com.example.demo.Service.ICategoryService;
+import com.example.demo.entity.Category;
+
+//khai báo service
 @Service
-public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+public class CategoryServiceImpl implements ICategoryService {
+	@Autowired
+	CategoryRepository categoryRepository;
 
-    @Override
-    public Page<Category> getAllCategories(int page, int size, String keyword) {
-        if (keyword != null && !keyword.isEmpty()) {
-            return categoryRepository.findByNameContainingIgnoreCase(keyword, PageRequest.of(page, size));
-        }
-        return categoryRepository.findAll(PageRequest.of(page, size));
-    }
+//source -> Generate Constructor using Field, xóa super()
+	@Override
+	public <S extends Category> S save(S entity) {
+		if (entity.getCategoryId() == null) {
+			return categoryRepository.save(entity);
+		} else {
+			Optional<Category> opt = findById(entity.getCategoryId());
+			if (opt.isPresent()) {
+				if (StringUtils.isEmpty(entity.getIcon())) {
+					entity.setIcon(opt.get().getIcon());
+				} else {
+//lấy lại images cũ
+					entity.setIcon(entity.getIcon());
+				}
+			}
+			return categoryRepository.save(entity);
+		}
+	}
 
-    @Override
-    public Category save(Category category) {
-        return categoryRepository.save(category);
-    }
+	@Override
+	public Optional<Category> findByCategoryName(String name) {
+		return categoryRepository.findByCategoryName(name);
+	}
 
-    @Override
-    public Optional<Category> getById(Long id) {
-        return categoryRepository.findById(id);
-    }
+	public CategoryServiceImpl(CategoryRepository categoryRepository) {
+		this.categoryRepository = categoryRepository;
+	}
 
-    @Override
-    public void delete(Long id) {
-        categoryRepository.deleteById(id);
-    }
+	@Override
+	public List<Category> findAll() {
+		return categoryRepository.findAll();
+	}
+
+	@Override
+	public Page<Category> findAll(Pageable pageable) {
+		return categoryRepository.findAll(pageable);
+	}
+
+	@Override
+	public List<Category> findAll(Sort sort) {
+		return categoryRepository.findAll(sort);
+	}
+
+	@Override
+	public List<Category> findAllById(Iterable<Long> ids) {
+		return categoryRepository.findAllById(ids);
+	}
+
+	@Override
+	public Optional<Category> findById(Long id) {
+		return categoryRepository.findById(id);
+	}
+
+	@Override
+	public <S extends Category> Optional<S> findOne(Example<S> example) {
+		return categoryRepository.findOne(example);
+	}
+
+	@Override
+	public long count() {
+		return categoryRepository.count();
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		categoryRepository.deleteById(id);
+	}
+
+	@Override
+	public void delete(Category entity) {
+		categoryRepository.delete(entity);
+	}
+
+	@Override
+	public List<Category> findByCategoryNameContaining(String name) {
+		return categoryRepository.findByCategoryNameContaining(name);
+	}
+
+	@Override
+	public Page<Category> findByCategoryNameContaining(String name, Pageable pageable) {
+		return categoryRepository.findByCategoryNameContaining(name, pageable);
+	}
 }
