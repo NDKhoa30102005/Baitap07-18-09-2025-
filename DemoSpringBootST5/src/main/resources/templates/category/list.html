@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Danh sách Category</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>Danh sách Category</h2>
+    
+    <form method="get" th:action="@{/categories}">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm..."/>
+        <button type="submit">Tìm</button>
+    </form>
+
+    <a class="btn btn-primary my-2" th:href="@{/categories/add}">Thêm mới</a>
+    
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên Category</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${categories.content}">
+            <td th:text="${cat.id}"></td>
+            <td th:text="${cat.name}"></td>
+            <td>
+                <a th:href="@{/categories/edit/{id}(id=${cat.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                <a th:href="@{/categories/delete/{id}(id=${cat.id})}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav>
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${categories.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/categories(page=${currentPage - 1}, keyword=${keyword})}">Previous</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, categories.totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/categories(page=${i}, keyword=${keyword})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${categories.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/categories(page=${currentPage + 1}, keyword=${keyword})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>
